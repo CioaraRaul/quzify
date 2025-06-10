@@ -20,8 +20,8 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: "General Quiz App" }} />
-      <Tabs.Screen name="quiz" options={{ title: "Quiz" }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+      <Tabs.Screen name="quiz" options={{ title: "Quiz history" }} />
+      <Tabs.Screen name="profile" options={{ title: "Profile settings" }} />
     </Tabs>
   );
 }
