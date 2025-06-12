@@ -2,15 +2,26 @@ import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
 import React, { useEffect, useState } from "react";
 import { fetchData } from "@/services/api";
 import { SubjectItem } from "@/interfaces/interface";
+import { useRouter } from "expo-router";
 
 export default function Index() {
   const [data, setData] = useState<SubjectItem[]>([]); // initialize as empty array
+  const router = useRouter();
 
+  //TODO: id shoul be user id
   const handleSubjectItem = (subject: string) => {
-    console.log(`You clicked: ${subject}`);
+    let subjectNew = subject.toLowerCase();
     // You can add your navigation logic here, e.g.,
     // navigation.navigate('QuizScreen', { selectedSubject: subject });
-    alert(`Starting quiz for: ${subject}`); // For demonstration
+    setTimeout(() => {
+      alert(`You clicked: ${subject}`);
+    }, 1000); // Simulate a delay for demonstration purposes
+    // For demonstration
+
+    router.push({
+      pathname: "/quiz/[id]",
+      params: { id: subjectNew },
+    });
   };
 
   const renderSubjectItem = ({ item }: { item: SubjectItem }) => (
@@ -24,7 +35,6 @@ export default function Index() {
       android_ripple={{ color: "#ccc" }} // Android specific ripple effect
     >
       <Text style={styles.subjectName}>{item.subject}</Text>
-      <Text style={styles.subjectCount}>({item.count})</Text>
     </Pressable>
   );
 
@@ -43,14 +53,13 @@ export default function Index() {
 
   return (
     <View>
+      <Text>Topics available for quiz</Text>
       {data.length > 0 ? (
-        <button onClick={(e) => console.log(e.currentTarget.innerText)}>
-          <FlatList
-            data={data}
-            renderItem={renderSubjectItem} // assuming your data has 'name' property
-            keyExtractor={(item, index) => item.subject + index.toString()}
-          />
-        </button>
+        <FlatList
+          data={data}
+          renderItem={renderSubjectItem} // assuming your data has 'name' property
+          keyExtractor={(item, index) => item.subject + index.toString()}
+        />
       ) : (
         <Text>Loading...</Text>
       )}

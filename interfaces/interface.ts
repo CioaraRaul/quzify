@@ -14,3 +14,12 @@ export interface SubjectsResponse {
   message: string;
   data: SubjectsData;
 }
+
+export interface SubjectCategory {
+  attempCount: number;
+  categoryId: number;
+  count: number;
+  description: string;
+  imageURL: string;
+  name: string;
+}
