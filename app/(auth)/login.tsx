@@ -1,8 +1,18 @@
 import { View, Text, Button } from "react-native";
 import { useRouter } from "expo-router";
+import { useEffect } from "react";
+import { fetchUsers } from "@/services/data_supabase";
 
 export default function LoginScreen() {
   const router = useRouter();
+
+  useEffect(() => {
+    async function checkAuth() {
+      const user = await fetchUsers();
+      console.log(user);
+    }
+    checkAuth();
+  }, []);
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
