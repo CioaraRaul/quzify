@@ -24,7 +24,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="[id]"
         options={{
-          title: "Category quiz",
+          title: "Quiz Categories",
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.replace("/")}>
               <Ionicons

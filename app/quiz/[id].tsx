@@ -3,20 +3,22 @@ import React, { useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { CatergortiesBySubject } from "@/services/api";
 import { SubjectCategory } from "@/interfaces/interface";
-import { useRoute } from "@react-navigation/native";
+import SubjectCategoryId from "@/components/categorySelected";
 
 const CategoryQuiz = () => {
+  const [selectedQuiz, setSelectedQuiz] = React.useState<boolean>(false);
   const [categoriesSubject, setCategoriesSubject] = React.useState<
     SubjectCategory[]
   >([]);
-
-  const router = useRoute();
+  const [quizId, setQuizId] = React.useState<SubjectCategory>();
 
   const { id } = useLocalSearchParams();
-  console.log("CategoryQuiz params:", id);
 
   const clickebleCategory = (category: SubjectCategory) => {
-    console.log(category.name);
+    console.log("Category clicked:", category.categoryID);
+    console.log(id);
+    setQuizId(category);
+    setSelectedQuiz(true);
   };
 
   //TODO: Fetch quiz data based on the category ID
@@ -41,18 +43,23 @@ const CategoryQuiz = () => {
       <Text>
         Selected category is: <span>{id}</span>
       </Text>
-
-      <FlatList
-        data={categoriesSubject}
-        keyExtractor={(item) =>
-          item.categoryId?.toString() ?? Math.random().toString()
-        }
-        renderItem={({ item }) => (
-          <View>
-            <button onClick={() => clickebleCategory(item)}>{item.name}</button>
-          </View>
-        )}
-      />
+      {!selectedQuiz ? (
+        <FlatList
+          data={categoriesSubject}
+          keyExtractor={(item) =>
+            item.categoryID?.toString() ?? Math.random().toString()
+          }
+          renderItem={({ item }) => (
+            <View>
+              <button onClick={() => clickebleCategory(item)}>
+                {item.name}
+              </button>
+            </View>
+          )}
+        />
+      ) : (
+        quizId && <SubjectCategoryId quiz={quizId} />
+      )}
     </View>
   );
 };
