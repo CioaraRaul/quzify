@@ -44,7 +44,7 @@ export default function Login() {
 
     setError("");
     console.log("Logged in:", username);
-    router.push("/quizify"); // Replace with your desired route after login
+    router.push("/"); // Replace with your desired route after login
   };
 
   return (

@@ -1,17 +1,22 @@
-import { View, Text, FlatList } from "react-native";
-import React, { useEffect } from "react";
-import { useLocalSearchParams } from "expo-router";
-import { CatergortiesBySubject } from "@/services/api";
-import { SubjectCategory } from "@/interfaces/interface";
 import SubjectCategoryId from "@/components/categorySelected";
+import { SubjectCategory } from "@/interfaces/interface";
+import { CatergortiesBySubject } from "@/services/api";
+import { useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const CategoryQuiz = () => {
-  const [selectedQuiz, setSelectedQuiz] = React.useState<boolean>(false);
-  const [categoriesSubject, setCategoriesSubject] = React.useState<
-    SubjectCategory[]
-  >([]);
-  const [quizId, setQuizId] = React.useState<SubjectCategory>();
-
+  const [selectedQuiz, setSelectedQuiz] = useState(false);
+  const [categoriesSubject, setCategoriesSubject] = useState<SubjectCategory[]>(
+    []
+  );
+  const [quizId, setQuizId] = useState<SubjectCategory>();
   const { id } = useLocalSearchParams();
 
   const clickebleCategory = (category: SubjectCategory) => {
@@ -21,15 +26,13 @@ const CategoryQuiz = () => {
     setSelectedQuiz(true);
   };
 
-  //TODO: Fetch quiz data based on the category ID
-
   useEffect(() => {
     async function SubjectCategoryFromApi() {
       const category = id
-        ? id.toString().charAt(0).toUpperCase() + id.slice(1)
+        ? id.toString().charAt(0).toUpperCase() + id.toString().slice(1)
         : "";
 
-      const response = await CatergortiesBySubject(category as string);
+      const response = await CatergortiesBySubject(category);
 
       if (response) {
         setCategoriesSubject(response.data?.list || []);
@@ -39,10 +42,11 @@ const CategoryQuiz = () => {
   }, [id]);
 
   return (
-    <View>
-      <Text>
-        Selected category is: <span>{id}</span>
+    <View style={styles.container}>
+      <Text style={styles.title}>
+        Selected category is: <Text style={styles.highlight}>{id}</Text>
       </Text>
+
       {!selectedQuiz ? (
         <FlatList
           data={categoriesSubject}
@@ -50,12 +54,14 @@ const CategoryQuiz = () => {
             item.categoryID?.toString() ?? Math.random().toString()
           }
           renderItem={({ item }) => (
-            <View>
-              <button onClick={() => clickebleCategory(item)}>
-                {item.name}
-              </button>
-            </View>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => clickebleCategory(item)}
+            >
+              <Text style={styles.buttonText}>{item.name}</Text>
+            </TouchableOpacity>
           )}
+          contentContainerStyle={styles.list}
         />
       ) : (
         quizId && <SubjectCategoryId quiz={quizId} />
@@ -65,3 +71,41 @@ const CategoryQuiz = () => {
 };
 
 export default CategoryQuiz;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f4f6f8",
+    padding: 20,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "600",
+    marginBottom: 16,
+    color: "#333",
+  },
+  highlight: {
+    color: "#007bff",
+    fontWeight: "bold",
+  },
+  list: {
+    paddingVertical: 10,
+  },
+  button: {
+    backgroundColor: "#007bff",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+});

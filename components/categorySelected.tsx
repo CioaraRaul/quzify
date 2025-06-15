@@ -1,26 +1,37 @@
 import { QuizQuestion, SubjectCategory } from "@/interfaces/interface";
 import { quizByCategoryID } from "@/services/api";
-import React, { useEffect } from "react";
-import { View, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Text, View } from "react-native";
+import QuizScreen from "./quizScreen";
+import GetRandomFiveQuestion from "./RandomValues";
 
 function SubjectCategoryId({ quiz }: { quiz: SubjectCategory }) {
   const [specificQuiz, setSpecificQuiz] = React.useState<QuizQuestion>();
+  const [quizFiveQuestionsRandom, setQuizFIveQuestionsRandom] = useState<
+    QuizQuestion[]
+  >([]);
 
   const currentQuiz = quiz?.categoryID.toString();
-  console.log(currentQuiz);
 
   useEffect(() => {
     async function fetchQuizData() {
       try {
         const res = await quizByCategoryID(currentQuiz);
-
         if (res) {
           const data = res?.data?.list;
-          console.log(data);
-          setSpecificQuiz(data);
+          console.log("Fetched quiz data:", data);
+
+          // If data is an array, pick the first one for now
+          if (Array.isArray(data) && data.length > 0) {
+            setSpecificQuiz(data[0]);
+            const randomFiveQuestios: any[] = GetRandomFiveQuestion(data);
+            setQuizFIveQuestionsRandom(randomFiveQuestios);
+          } else {
+            setSpecificQuiz(undefined);
+          }
         }
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching quiz:", error);
       }
     }
 
@@ -34,11 +45,7 @@ function SubjectCategoryId({ quiz }: { quiz: SubjectCategory }) {
       <Text>You choose to do the {quiz.name} quiz</Text>
       {specificQuiz ? (
         <View>
-          <Text>Quiz ID: {specificQuiz._id}</Text>
-          <Text>Question: {specificQuiz.question}</Text>
-          <Text>Options: {specificQuiz.options.join(", ")}</Text>
-          <Text>Correct Option: {specificQuiz.correctOption}</Text>
-          <Text>Explanation: {specificQuiz.explanation}</Text>
+          <QuizScreen quizFiveQuestion={quizFiveQuestionsRandom} />
         </View>
       ) : (
         <Text>No data found...</Text>
