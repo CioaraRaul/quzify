@@ -1,23 +1,15 @@
-import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
-import { fetchData } from "@/services/api";
 import { SubjectItem } from "@/interfaces/interface";
+import { fetchData } from "@/services/api";
 import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Index() {
-  const [data, setData] = useState<SubjectItem[]>([]); // initialize as empty array
+  const [data, setData] = useState<SubjectItem[]>([]);
   const router = useRouter();
 
-  //TODO: id shoul be user id
   const handleSubjectItem = (subject: string) => {
-    let subjectNew = subject.toLowerCase();
-    // You can add your navigation logic here, e.g.,
-    // navigation.navigate('QuizScreen', { selectedSubject: subject });
-    setTimeout(() => {
-      alert(`You clicked: ${subject}`);
-    }, 1000); // Simulate a delay for demonstration purposes
-    // For demonstration
-
+    const subjectNew = subject.toLowerCase();
     router.push({
       pathname: "/quiz/[id]",
       params: { id: subjectNew },
@@ -25,14 +17,13 @@ export default function Index() {
   };
 
   const renderSubjectItem = ({ item }: { item: SubjectItem }) => (
-    // Wrap the item's content with Pressable to make it clickable
     <Pressable
       style={({ pressed }) => [
         styles.subjectItem,
-        pressed && styles.subjectItemPressed, // Apply a subtle visual feedback when pressed
+        pressed && styles.subjectItemPressed,
       ]}
-      onPress={() => handleSubjectItem(item.subject)} // Pass the specific subject name
-      android_ripple={{ color: "#ccc" }} // Android specific ripple effect
+      onPress={() => handleSubjectItem(item.subject)}
+      android_ripple={{ color: "#ccc" }}
     >
       <Text style={styles.subjectName}>{item.subject}</Text>
     </Pressable>
@@ -42,8 +33,7 @@ export default function Index() {
     async function getData() {
       try {
         const fetchedData = await fetchData("subjects-list");
-        console.log("Data fetched:", fetchedData);
-        setData(fetchedData.data?.list || []); // ensure data is set correctly
+        setData(fetchedData.data?.list || []);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -52,16 +42,20 @@ export default function Index() {
   }, []);
 
   return (
-    <View>
-      <Text>Topics available for quiz</Text>
+    <View style={styles.container}>
+      <Text style={styles.header}>Topics Available for Quiz</Text>
+
       {data.length > 0 ? (
         <FlatList
           data={data}
-          renderItem={renderSubjectItem} // assuming your data has 'name' property
+          renderItem={renderSubjectItem}
           keyExtractor={(item, index) => item.subject + index.toString()}
+          contentContainerStyle={styles.listContent}
         />
       ) : (
-        <Text>Loading...</Text>
+        <View style={styles.centered}>
+          <Text style={styles.subjectName}>Loading...</Text>
+        </View>
       )}
     </View>
   );
@@ -105,23 +99,12 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   subjectItemPressed: {
-    // Style for when an item is pressed
-    backgroundColor: "#e0e0e0", // A lighter shade to indicate press
+    backgroundColor: "#e0e0e0",
     opacity: 0.8,
   },
   subjectName: {
     fontSize: 18,
     color: "#555",
     fontWeight: "600",
-  },
-  subjectCount: {
-    fontSize: 16,
-    color: "#888",
-    fontWeight: "normal",
-  },
-  errorText: {
-    color: "red",
-    fontSize: 16,
-    textAlign: "center",
   },
 });

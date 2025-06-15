@@ -57,3 +57,9 @@ export interface QuizResponse {
   categoryId: string;
   category: string;
 }
+
+export interface User {
+  username: string;
+  password: string;
+  user_id: string;
+}
