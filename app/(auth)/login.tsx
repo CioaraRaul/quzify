@@ -11,13 +11,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useUser } from "../context/UserContext";
 
 export default function Login() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [usernameContext, setUsernameContext] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const { setUsername } = useUser();
 
   useEffect(() => {
     async function GetUsers() {
@@ -28,13 +30,13 @@ export default function Login() {
   }, []);
 
   const handleLogin = () => {
-    if (!username || !password) {
+    if (!usernameContext || !password) {
       setError("Please enter both username and password.");
       return;
     }
 
     const foundUser = allUsers.find(
-      (user) => user.username === username && user.password === password
+      (user) => user.username === usernameContext && user.password === password
     );
 
     if (!foundUser) {
@@ -43,8 +45,9 @@ export default function Login() {
     }
 
     setError("");
-    console.log("Logged in:", username);
-    router.push("/"); // Replace with your desired route after login
+    console.log("Logged in:", usernameContext);
+    setUsername(foundUser.username);
+    router.push(`/home/${usernameContext}`); // Replace with your desired route after login
   };
 
   return (
@@ -59,8 +62,8 @@ export default function Login() {
         <TextInput
           style={styles.input}
           placeholder="Enter username"
-          value={username}
-          onChangeText={setUsername}
+          value={usernameContext}
+          onChangeText={setUsernameContext}
           autoCapitalize="none"
           autoCorrect={false}
         />

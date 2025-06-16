@@ -5,7 +5,13 @@ import { Text, View } from "react-native";
 import QuizScreen from "./quizScreen";
 import GetRandomFiveQuestion from "./RandomValues";
 
-function SubjectCategoryId({ quiz }: { quiz: SubjectCategory }) {
+function SubjectCategoryId({
+  quiz,
+  username,
+}: {
+  quiz: SubjectCategory;
+  username: string;
+}) {
   const [specificQuiz, setSpecificQuiz] = React.useState<QuizQuestion>();
   const [quizFiveQuestionsRandom, setQuizFIveQuestionsRandom] = useState<
     QuizQuestion[]
@@ -45,7 +51,10 @@ function SubjectCategoryId({ quiz }: { quiz: SubjectCategory }) {
       <Text>You choose to do the {quiz.name} quiz</Text>
       {specificQuiz ? (
         <View>
-          <QuizScreen quizFiveQuestion={quizFiveQuestionsRandom} />
+          <QuizScreen
+            quizFiveQuestion={quizFiveQuestionsRandom}
+            username={username}
+          />
         </View>
       ) : (
         <Text>No data found...</Text>

@@ -1,7 +1,8 @@
+import { addQuizHistory } from "@/services/data_supabase";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const QuizScreen = ({ quizFiveQuestion }) => {
+const QuizScreen = ({ quizFiveQuestion, username }) => {
   const [questionNumber, setQuestionNumber] = useState(0);
   const [questionInterface, setQuestionInterface] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -9,6 +10,8 @@ const QuizScreen = ({ quizFiveQuestion }) => {
   const [correctOption, setCorrectOption] = useState("");
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+
+  console.log(`Username check ${username}`);
 
   useEffect(() => {
     if (Array.isArray(quizFiveQuestion)) {
@@ -58,7 +61,15 @@ const QuizScreen = ({ quizFiveQuestion }) => {
     return styles.optionDisabled;
   };
 
-  const handleRestart = () => {
+  const handleRestart = async () => {
+    let created_at = new Date().toISOString();
+
+    await addQuizHistory(
+      username,
+      quizFiveQuestion[0].category,
+      score,
+      created_at
+    );
     setQuestionNumber(0);
     setScore(0);
     setIsFinished(false);

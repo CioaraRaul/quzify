@@ -63,3 +63,11 @@ export interface User {
   password: string;
   user_id: string;
 }
+
+export interface QuizFinished {
+  created_at: string;
+  id: string;
+  quizTitle: string;
+  score: number;
+  username: string;
+}

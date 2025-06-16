@@ -21,7 +21,7 @@ export default function AuthLayout() {
                 if (router.canGoBack()) {
                   router.back();
                 } else {
-                  router.replace("/login");
+                  router.replace("/quizify");
                 }
               }}
               style={{ paddingHorizontal: 10 }}

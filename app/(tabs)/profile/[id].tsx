@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import { useUser } from "@/app/context/UserContext";
+import { User } from "@/interfaces/interface";
+import { changePassword, getDataByUsername } from "@/services/data_supabase";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   StyleSheet,
@@ -15,8 +18,29 @@ const user = {
 
 const Profile = () => {
   const [buttonEdit, setButtonEdit] = useState(false);
-  const [username, setUsername] = useState(user.name);
+  const [usernameProfile, setusernameProfile] = useState(user.name);
   const [password, setPassword] = useState("");
+  const [userSupa, setUserSupa] = React.useState<User>();
+  const { username } = useUser();
+  console.log(username);
+
+  useEffect(() => {
+    async function GetUser() {
+      const user = await getDataByUsername(username);
+      console.log(user);
+      setUserSupa(user);
+    }
+    GetUser();
+  }, []);
+
+  useEffect(() => {
+    async function NewPassword() {
+      if (userSupa?.username) {
+        await changePassword(userSupa.username, password);
+      }
+    }
+    NewPassword();
+  }, [password]);
 
   const handleSave = () => {
     setButtonEdit(false);
@@ -26,18 +50,17 @@ const Profile = () => {
     <View style={styles.container}>
       <Image source={{ uri: user.profileImage }} style={styles.avatar} />
 
-      <Text style={styles.name}>{username}</Text>
-      <Text style={styles.email}>{user?.email}</Text>
+      <Text style={styles.name}>{userSupa?.username}</Text>
 
       {buttonEdit ? (
         <View style={styles.editContainer}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Change Username</Text>
+            <Text style={styles.label}>Change usernameProfile</Text>
             <TextInput
               style={styles.input}
-              value={username}
-              onChangeText={setUsername}
-              placeholder="New username"
+              value={userSupa?.username}
+              onChangeText={setusernameProfile}
+              placeholder="New usernameProfile"
             />
           </View>
           <View style={styles.inputGroup}>

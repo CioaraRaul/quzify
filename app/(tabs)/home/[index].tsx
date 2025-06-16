@@ -11,7 +11,7 @@ export default function Index() {
   const handleSubjectItem = (subject: string) => {
     const subjectNew = subject.toLowerCase();
     router.push({
-      pathname: "/quiz/[id]",
+      pathname: "/quizCategory/[id]",
       params: { id: subjectNew },
     });
   };

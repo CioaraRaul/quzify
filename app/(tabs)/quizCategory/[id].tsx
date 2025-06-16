@@ -1,3 +1,4 @@
+import { useUser } from "@/app/context/UserContext";
 import SubjectCategoryId from "@/components/categorySelected";
 import { SubjectCategory } from "@/interfaces/interface";
 import { CatergortiesBySubject } from "@/services/api";
@@ -18,6 +19,7 @@ const CategoryQuiz = () => {
   );
   const [quizId, setQuizId] = useState<SubjectCategory>();
   const { id } = useLocalSearchParams();
+  const userContext = useUser();
 
   const clickebleCategory = (category: SubjectCategory) => {
     console.log("Category clicked:", category.categoryID);
@@ -64,7 +66,9 @@ const CategoryQuiz = () => {
           contentContainerStyle={styles.list}
         />
       ) : (
-        quizId && <SubjectCategoryId quiz={quizId} />
+        quizId && (
+          <SubjectCategoryId quiz={quizId} username={userContext.username} />
+        )
       )}
     </View>
   );
