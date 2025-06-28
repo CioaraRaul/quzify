@@ -1,6 +1,12 @@
+import { useColorMode } from "@/app/context/ColorModeContext";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
+  const { colorMode } = useColorMode();
+  const tabBarBg = colorMode === "dark" ? "#18181b" : "#fff";
+  const activeColor = colorMode === "dark" ? "#fff" : "#000";
+  const inactiveColor = colorMode === "dark" ? "#aaa" : "#888";
+
   return (
     <Tabs
       screenOptions={{
@@ -8,14 +14,14 @@ export default function TabsLayout() {
           textAlign: "center",
           fontWeight: "bold",
           fontSize: 14,
-          paddingBottom: 4, // space for underline
+          paddingBottom: 4,
         },
-        tabBarActiveTintColor: "#000", // active tab text color
-        tabBarInactiveTintColor: "#888", // inactive tab text color
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
-          backgroundColor: "#fff",
+          backgroundColor: tabBarBg,
           borderTopWidth: 0,
-          elevation: 0, // no shadow on Android
+          elevation: 0,
         },
       }}
     >

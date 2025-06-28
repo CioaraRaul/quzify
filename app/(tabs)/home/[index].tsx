@@ -1,3 +1,4 @@
+import { useColorMode } from "@/app/context/ColorModeContext";
 import { SubjectItem } from "@/interfaces/interface";
 import { fetchData } from "@/services/api";
 import { useRouter } from "expo-router";
@@ -7,6 +8,15 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 export default function Index() {
   const [data, setData] = useState<SubjectItem[]>([]);
   const router = useRouter();
+  const { colorMode, toggleColorMode } = useColorMode();
+  const darkMode = colorMode === "dark";
+
+  const colors = {
+    background: darkMode ? "#18181b" : "#f0f0f0",
+    card: darkMode ? "#23232b" : "#fff",
+    text: darkMode ? "#fff" : "#333",
+    pressed: darkMode ? "#33334d" : "#e0e0e0",
+  };
 
   const handleSubjectItem = (subject: string) => {
     const subjectNew = subject.toLowerCase();
@@ -20,12 +30,15 @@ export default function Index() {
     <Pressable
       style={({ pressed }) => [
         styles.subjectItem,
-        pressed && styles.subjectItemPressed,
+        { backgroundColor: colors.card },
+        pressed && { backgroundColor: colors.pressed, opacity: 0.8 },
       ]}
       onPress={() => handleSubjectItem(item.subject)}
-      android_ripple={{ color: "#ccc" }}
+      android_ripple={{ color: colors.pressed }}
     >
-      <Text style={styles.subjectName}>{item.subject}</Text>
+      <Text style={[styles.subjectName, { color: colors.text }]}>
+        {item.subject}
+      </Text>
     </Pressable>
   );
 
@@ -42,9 +55,10 @@ export default function Index() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Topics Available for Quiz</Text>
-
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.header, { color: colors.text }]}>
+        Topics Available for Quiz
+      </Text>
       {data.length > 0 ? (
         <FlatList
           data={data}
@@ -54,7 +68,9 @@ export default function Index() {
         />
       ) : (
         <View style={styles.centered}>
-          <Text style={styles.subjectName}>Loading...</Text>
+          <Text style={[styles.subjectName, { color: colors.text }]}>
+            Loading...
+          </Text>
         </View>
       )}
     </View>
@@ -63,7 +79,6 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
     paddingTop: 40,
     paddingHorizontal: 20,
   },
@@ -71,14 +86,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f0f0f0",
   },
   header: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
-    color: "#333",
   },
   listContent: {
     paddingBottom: 20,
@@ -87,7 +100,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -98,13 +110,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  subjectItemPressed: {
-    backgroundColor: "#e0e0e0",
-    opacity: 0.8,
-  },
   subjectName: {
     fontSize: 18,
-    color: "#555",
     fontWeight: "600",
   },
 });

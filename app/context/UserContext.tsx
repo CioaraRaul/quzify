@@ -1,27 +1,47 @@
-// app/context/UserContext.tsx
-import React, { createContext, useContext, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type UserContextType = {
-  username: string;
-  setUsername: (name: string) => void;
+  username: string | null;
+  setUsername: (username: string | null) => void;
+  logout: () => void;
 };
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType>({
+  username: null,
+  setUsername: () => {},
+  logout: () => {},
+});
 
-export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [username, setUsername] = useState("");
+export const useUser = () => useContext(UserContext);
+
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const [username, setUsernameState] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load from AsyncStorage on mount
+    AsyncStorage.getItem("username").then((storedUsername) => {
+      if (storedUsername) setUsernameState(storedUsername);
+    });
+  }, []);
+
+  const setUsername = async (name: string | null) => {
+    setUsernameState(name);
+    if (name) {
+      await AsyncStorage.setItem("username", name);
+    } else {
+      await AsyncStorage.removeItem("username");
+    }
+  };
+
+  const logout = async () => {
+    await AsyncStorage.removeItem("username");
+    setUsernameState(null);
+  };
 
   return (
-    <UserContext.Provider value={{ username, setUsername }}>
+    <UserContext.Provider value={{ username, setUsername, logout }}>
       {children}
     </UserContext.Provider>
   );
-}
-
-export function useUser() {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
-  return context;
-}
+};

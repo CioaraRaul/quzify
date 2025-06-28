@@ -1,3 +1,4 @@
+import { useColorMode } from "@/app/context/ColorModeContext";
 import { useUser } from "@/app/context/UserContext";
 import SubjectCategoryId from "@/components/categorySelected";
 import { SubjectCategory } from "@/interfaces/interface";
@@ -20,10 +21,17 @@ const CategoryQuiz = () => {
   const [quizId, setQuizId] = useState<SubjectCategory>();
   const { id } = useLocalSearchParams();
   const userContext = useUser();
+  const { colorMode } = useColorMode();
+
+  const colors = {
+    background: colorMode === "dark" ? "#18181b" : "#f4f6f8",
+    card: colorMode === "dark" ? "#23232b" : "#fff",
+    text: colorMode === "dark" ? "#fff" : "#333",
+    button: "#007bff",
+    buttonText: "#fff",
+  };
 
   const clickebleCategory = (category: SubjectCategory) => {
-    console.log("Category clicked:", category.categoryID);
-    console.log(id);
     setQuizId(category);
     setSelectedQuiz(true);
   };
@@ -33,9 +41,7 @@ const CategoryQuiz = () => {
       const category = id
         ? id.toString().charAt(0).toUpperCase() + id.toString().slice(1)
         : "";
-
       const response = await CatergortiesBySubject(category);
-
       if (response) {
         setCategoriesSubject(response.data?.list || []);
       }
@@ -44,8 +50,8 @@ const CategoryQuiz = () => {
   }, [id]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>
         Selected category is: <Text style={styles.highlight}>{id}</Text>
       </Text>
 
@@ -57,17 +63,22 @@ const CategoryQuiz = () => {
           }
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.button}
+              style={[styles.button, { backgroundColor: colors.button }]}
               onPress={() => clickebleCategory(item)}
             >
-              <Text style={styles.buttonText}>{item.name}</Text>
+              <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+                {item.name}
+              </Text>
             </TouchableOpacity>
           )}
           contentContainerStyle={styles.list}
         />
       ) : (
         quizId && (
-          <SubjectCategoryId quiz={quizId} username={userContext.username} />
+          <SubjectCategoryId
+            quiz={quizId}
+            username={userContext.username ?? ""}
+          />
         )
       )}
     </View>
@@ -79,14 +90,12 @@ export default CategoryQuiz;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f6f8",
     padding: 20,
   },
   title: {
     fontSize: 22,
     fontWeight: "600",
     marginBottom: 16,
-    color: "#333",
   },
   highlight: {
     color: "#007bff",
@@ -96,7 +105,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   button: {
-    backgroundColor: "#007bff",
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 10,
@@ -108,7 +116,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "500",
   },

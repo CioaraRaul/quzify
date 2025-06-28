@@ -1,6 +1,5 @@
 import { useColorMode } from "@/app/context/ColorModeContext";
 import { useUser } from "@/app/context/UserContext";
-
 import { User } from "@/interfaces/interface";
 import { changePassword, getDataByUsername } from "@/services/data_supabase";
 import { useRouter } from "expo-router";
@@ -24,45 +23,51 @@ const Profile = () => {
   const [buttonEdit, setButtonEdit] = useState(false);
   const [usernameProfile, setusernameProfile] = useState(user.name);
   const [password, setPassword] = useState("");
-  const [userSupa, setUserSupa] = React.useState<User>();
+  const [userSupa, setUserSupa] = useState<User>();
   const { username, setUsername } = useUser();
-  const { darkMode, toggleDarkMode } = useColorMode();
+  const { colorMode, toggleColorMode } = useColorMode();
   const router = useRouter();
 
   useEffect(() => {
     async function GetUser() {
-      const user = await getDataByUsername(username);
-      setUserSupa(user);
-    }
-    GetUser();
-  }, []);
-
-  useEffect(() => {
-    async function NewPassword() {
-      if (userSupa?.username && password) {
-        await changePassword(userSupa.username, password);
+      if (username) {
+        const user = await getDataByUsername(username);
+        setUserSupa(user);
+        setusernameProfile(user?.username || "");
       }
     }
-    NewPassword();
-  }, [password]);
+    GetUser();
+  }, [username]);
 
-  const handleSave = () => {
+  // Change password only when Save is pressed!
+  const handleSave = async () => {
+    if (userSupa?.username && password) {
+      await changePassword(userSupa.username, password);
+    }
     setButtonEdit(false);
+    setPassword(""); // Clear the password after save
   };
 
   // --- LOGOUT HANDLER ---
   const handleLogout = () => {
-    setUsername(""); // or set user to null depending on context logic
+    setUsername("");
     router.replace("/quizify");
   };
 
   // --- COLORS BASED ON MODE ---
+  const isDark = colorMode === "dark";
   const colors = {
-    background: darkMode ? "#1a1a1a" : "#F8F8F8",
-    text: darkMode ? "#fff" : "#333",
-    card: darkMode ? "#222" : "#fff",
-    border: darkMode ? "#444" : "#ccc",
+    background: isDark ? "#181a20" : "#F8F8F8",
+    text: isDark ? "#fff" : "#333",
+    card: isDark ? "#24262d" : "#fff",
+    border: isDark ? "#444" : "#ccc",
     button: "#007bff",
+    buttonText: "#fff",
+    logout: "#f44336",
+    inputBg: isDark ? "#24262d" : "#fff",
+    inputText: isDark ? "#fff" : "#333",
+    inputBorder: isDark ? "#444" : "#ccc",
+    shadow: isDark ? "#000" : "#aaa",
   };
 
   return (
@@ -70,18 +75,19 @@ const Profile = () => {
       <Image source={{ uri: user.profileImage }} style={styles.avatar} />
 
       <Text style={[styles.name, { color: colors.text }]}>
-        {userSupa?.username}
+        {userSupa?.username || ""}
       </Text>
 
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          marginVertical: 16,
-        }}
-      >
+      {/* DARK MODE SWITCH */}
+      <View style={styles.switchRow}>
         <Text style={{ color: colors.text, marginRight: 8 }}>Dark Mode</Text>
-        <Switch value={darkMode} onValueChange={toggleDarkMode} />
+        <Switch
+          value={isDark}
+          onValueChange={toggleColorMode}
+          trackColor={{ false: "#ccc", true: "#222" }}
+          thumbColor={isDark ? "#007bff" : "#f4f3f4"}
+          ios_backgroundColor="#3e3e3e"
+        />
       </View>
 
       {buttonEdit ? (
@@ -93,12 +99,16 @@ const Profile = () => {
             <TextInput
               style={[
                 styles.input,
-                { borderColor: colors.border, color: colors.text },
+                {
+                  borderColor: colors.inputBorder,
+                  color: colors.inputText,
+                  backgroundColor: colors.inputBg,
+                },
               ]}
-              value={userSupa?.username}
+              value={usernameProfile}
               onChangeText={setusernameProfile}
               placeholder="New username"
-              placeholderTextColor={darkMode ? "#888" : "#999"}
+              placeholderTextColor={isDark ? "#888" : "#999"}
             />
           </View>
           <View style={styles.inputGroup}>
@@ -108,35 +118,49 @@ const Profile = () => {
             <TextInput
               style={[
                 styles.input,
-                { borderColor: colors.border, color: colors.text },
+                {
+                  borderColor: colors.inputBorder,
+                  color: colors.inputText,
+                  backgroundColor: colors.inputBg,
+                },
               ]}
               value={password}
               onChangeText={setPassword}
               placeholder="New password"
-              placeholderTextColor={darkMode ? "#888" : "#999"}
+              placeholderTextColor={isDark ? "#888" : "#999"}
               secureTextEntry
             />
           </View>
           <TouchableOpacity
             style={[styles.saveButton, { backgroundColor: colors.button }]}
             onPress={handleSave}
+            activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Save</Text>
+            <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+              Save
+            </Text>
           </TouchableOpacity>
         </View>
       ) : (
         <TouchableOpacity
           style={[styles.button, { backgroundColor: colors.button }]}
           onPress={() => setButtonEdit(true)}
+          activeOpacity={0.8}
         >
-          <Text style={styles.buttonText}>Edit Profile</Text>
+          <Text style={[styles.buttonText, { color: colors.buttonText }]}>
+            Edit Profile
+          </Text>
         </TouchableOpacity>
       )}
 
       {/* LOGOUT */}
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: "#f44336", marginTop: 24 }]}
+        style={[
+          styles.button,
+          { backgroundColor: colors.logout, marginTop: 24 },
+        ]}
         onPress={handleLogout}
+        activeOpacity={0.8}
       >
         <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
@@ -146,7 +170,6 @@ const Profile = () => {
 
 export default Profile;
 
-// ...styles are unchanged from yours!
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -166,21 +189,24 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     color: "#333",
+    marginBottom: 8,
   },
-  email: {
-    fontSize: 16,
-    color: "#777",
-    marginBottom: 30,
+  switchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 16,
   },
   button: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 8,
     marginTop: 12,
+    alignItems: "center",
+    width: 180,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 16,
+    fontWeight: "bold",
   },
   editContainer: {
     width: "100%",
@@ -200,11 +226,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     backgroundColor: "#fff",
+    fontSize: 16,
+    marginBottom: 5,
   },
   saveButton: {
-    backgroundColor: "#007bff",
-    paddingVertical: 10,
-    alignItems: "center",
+    paddingVertical: 12,
     borderRadius: 8,
+    alignItems: "center",
+    marginTop: 8,
   },
 });

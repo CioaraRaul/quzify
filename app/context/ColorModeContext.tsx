@@ -1,24 +1,24 @@
 import React, { createContext, useContext, useState } from "react";
 
 const ColorModeContext = createContext({
-  darkMode: false,
-  toggleDarkMode: () => {},
+  colorMode: "light",
+  setColorMode: (_: "light" | "dark") => {},
+  toggleColorMode: () => {},
 });
 
-export const useColorMode = () => useContext(ColorModeContext);
-
-export const ColorModeProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
-
+export function ColorModeProvider({ children }: { children: React.ReactNode }) {
+  const [colorMode, setColorMode] = useState<"light" | "dark">("light");
+  const toggleColorMode = () =>
+    setColorMode((prev) => (prev === "light" ? "dark" : "light"));
   return (
-    <ColorModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+    <ColorModeContext.Provider
+      value={{ colorMode, setColorMode, toggleColorMode }}
+    >
       {children}
     </ColorModeContext.Provider>
   );
-};
+}
+
+export function useColorMode() {
+  return useContext(ColorModeContext);
+}
