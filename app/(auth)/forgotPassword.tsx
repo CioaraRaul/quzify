@@ -3,7 +3,6 @@ import { fetchUsers, getUserPassword } from "@/services/data_supabase";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import {
-  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -15,6 +14,7 @@ export default function ForgotPassword() {
   const router = useRouter();
   const [allUsers, setAllUsers] = React.useState<User[]>([]);
   const [inputUser, setInputUser] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string | null>(null);
 
   useEffect(() => {
     async function GetUsers() {
@@ -26,19 +26,21 @@ export default function ForgotPassword() {
     GetUsers();
   }, []);
 
-  const usersExists = (username: string): boolean => {
-    const userExists = allUsers.find((user) => user.username === username);
-    return !userExists;
+  const userExists = (username: string): boolean => {
+    return !!allUsers.find((user) => user.username === username.trim());
   };
 
   const handleSubmit = async () => {
-    const userNotFound = usersExists(inputUser);
-    if (userNotFound) {
-      Alert.alert("Error", "User does NOT exist");
+    setPassword(null); // Clear previous result
+    const found = userExists(inputUser);
+    if (!found) {
+      setPassword("User does NOT exist!");
     } else {
-      const userPass = await getUserPassword(inputUser);
-      Alert.alert("Password", `The password is: ${userPass}`);
-      router.push("/login");
+      const userPass = await getUserPassword(inputUser.trim());
+      setPassword(`The password is: ${userPass}`);
+      setTimeout(() => {
+        router.push("/login");
+      }, 4000); // 4 seconds
     }
   };
 
@@ -61,6 +63,8 @@ export default function ForgotPassword() {
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Retrieve Password</Text>
       </TouchableOpacity>
+
+      {password && <Text style={styles.passwordText}>{password}</Text>}
     </View>
   );
 }
@@ -105,5 +109,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  passwordText: {
+    marginTop: 24,
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#2d6a4f",
+    textAlign: "center",
   },
 });
